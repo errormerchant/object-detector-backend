@@ -1,13 +1,13 @@
 import torch
-from torchvision.models.detection import fasterrcnn_resnet50_fpn
-from torchvision.models.detection import FasterRCNN_ResNet50_FPN_Weights
+from torchvision.models.detection import ssdlite320_mobilenet_v3_large, SSDLite320_MobileNet_V3_Large_Weights
 from PIL import Image
 
 # Pretrained model
-weights = FasterRCNN_ResNet50_FPN_Weights.DEFAULT
-model = fasterrcnn_resnet50_fpn(weights=weights)
-transform = weights.transforms()
+weights = SSDLite320_MobileNet_V3_Large_Weights.DEFAULT
+model = ssdlite320_mobilenet_v3_large(weights=weights)
 model.eval()
+
+transform = weights.transforms()
 
 # COCO class labels
 COCO_INSTANCE_CATEGORY_NAMES = [
@@ -38,5 +38,5 @@ def detect_objects(image: Image.Image):
                 "score": round(score.item(), 3),
                 "bbox": [round(x.item(), 1) for x in box]
             })
-    print(results)
+
     return results
