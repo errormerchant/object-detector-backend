@@ -1,7 +1,6 @@
 import torch
 from torchvision.models.detection import fasterrcnn_resnet50_fpn
 from torchvision.models.detection import FasterRCNN_ResNet50_FPN_Weights
-from torchvision.transforms import functional as F
 from PIL import Image
 
 # Pretrained model
