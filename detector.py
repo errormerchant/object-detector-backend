@@ -32,11 +32,18 @@ def detect_objects(image: Image.Image):
     
     results = []
     for box, label, score in zip(prediction["boxes"], prediction["labels"], prediction["scores"]):
-        if score >= 0.75:
+        if score >= 0.65:
             results.append({
                 "label": COCO_INSTANCE_CATEGORY_NAMES[label],
                 "score": round(score.item(), 3),
                 "bbox": [round(x.item(), 1) for x in box]
             })
+    
+    if not results:
+        results.append({
+            "label": 'Hold on, let me put on my glasses… nope, still nothing.',
+            "score": 0,
+            "bbox": [0, 0, 0, 0]
+        })
 
     return results
