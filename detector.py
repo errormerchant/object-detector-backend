@@ -1,13 +1,14 @@
-import torch
-from torchvision.models.detection import ssdlite320_mobilenet_v3_large, SSDLite320_MobileNet_V3_Large_Weights
+# import torch
+# from torchvision.models.detection import ssdlite320_mobilenet_v3_large, SSDLite320_MobileNet_V3_Large_Weights
+from ultralytics import YOLO
 from PIL import Image
+import io
 
 # Pretrained model
-weights = SSDLite320_MobileNet_V3_Large_Weights.DEFAULT
-model = ssdlite320_mobilenet_v3_large(weights=weights)
-model.eval()
-
-transform = weights.transforms()
+# weights = SSDLite320_MobileNet_V3_Large_Weights.DEFAULT
+# transform = weights.transforms()
+model = YOLO("yolov8n.pt")
+# model.eval()
 
 # COCO class labels
 COCO_INSTANCE_CATEGORY_NAMES = [
@@ -25,25 +26,27 @@ COCO_INSTANCE_CATEGORY_NAMES = [
     'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
 ]
 
-def detect_objects(image: Image.Image):
-    image_tensor = transform(image).unsqueeze(0)
-    with torch.no_grad():
-        prediction = model(image_tensor)[0]
+def detect_objects(image_bytes):
+    image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    results = model(image, conf=0.5)
+    detections = []
+    names = results[0].names
+
+    for box in results[0].boxes:
+        x1, y1, x2, y2 = box.xyxy[0].tolist()
+        label = names[int(box.cls)]
+        score = float(box.conf)
+        detections.append({
+            "label": label,
+            "score": round(score, 2),
+            "bbox": [x1, y1, x2, y2]
+        })
     
-    results = []
-    for box, label, score in zip(prediction["boxes"], prediction["labels"], prediction["scores"]):
-        if score >= 0.65:
-            results.append({
-                "label": COCO_INSTANCE_CATEGORY_NAMES[label],
-                "score": round(score.item(), 3),
-                "bbox": [round(x.item(), 1) for x in box]
-            })
-    
-    if not results:
-        results.append({
+    if not detections:
+        detections.append({
             "label": 'Hold on, let me put on my glasses… nope, still nothing.',
             "score": 0,
             "bbox": [0, 0, 0, 0]
         })
 
-    return results
+    return detections

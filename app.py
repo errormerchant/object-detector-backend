@@ -14,7 +14,7 @@ def predict():
         return jsonify({"error": "No file uploaded"}), 400
 
     file = request.files['file']
-    image = Image.open(io.BytesIO(file.read())).convert("RGB")
+    image = file.read()
     results = detect_objects(image)
 
     return jsonify({"predictions": results})
