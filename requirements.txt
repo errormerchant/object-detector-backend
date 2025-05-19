@@ -4,4 +4,5 @@ Pillow
 numpy<2
 torch==2.2.1+cpu
 torchvision==0.17.1+cpu
+ultralytics==8.1.18
 --extra-index-url https://download.pytorch.org/whl/cpu
